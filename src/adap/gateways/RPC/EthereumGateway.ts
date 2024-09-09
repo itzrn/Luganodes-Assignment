@@ -3,36 +3,34 @@ import { BlockchainGateway } from "./BlockchainGateway";
 import { IBlockchainProvider, IBlockchainGateway } from "core/types.gateways";
 import { ProviderEvent } from "ethers";
 
-// Define the configuration interface for EthereumGateway
 interface EthereumGatewayConfig {
   rpcUrl: string;
   apiKey: string;
-  network?: ethers.Networkish; // Optional network parameter
-  version?: string; // Optional version parameter
+  network?: ethers.Networkish;
+  version?: string;
   metadata: {
     network: "mainnet" | "ropsten" | "rinkeby" | "goerli" | "kovan";
   };
 }
 
-// Implement the Ethereum-specific provider that adheres to the IBlockchainProvider interface
 class EthereumProvider implements IBlockchainProvider {
-  private provider: ethers.JsonRpcProvider;
+  private prov: ethers.JsonRpcProvider;
 
   constructor(config: EthereumGatewayConfig) {
     const fullRpcUrl = `${config.rpcUrl}/v2/${config.apiKey}`;
-    this.provider = new ethers.JsonRpcProvider(fullRpcUrl, config.network);
+    this.prov = new ethers.JsonRpcProvider(fullRpcUrl, config.network);
   }
 
   async getTransaction(txHash: string): Promise<any> {
-    return this.provider.getTransaction(txHash);
+    return this.prov.getTransaction(txHash);
   }
 
   async getBlock(blockNumberOrHash: string | number): Promise<any> {
-    return this.provider.getBlock(blockNumberOrHash);
+    return this.prov.getBlock(blockNumberOrHash);
   }
 
   async getBlockNumber(): Promise<any> {
-    return this.provider.getBlockNumber();
+    return this.prov.getBlockNumber();
   }
 
   async getTransactionTrace(
@@ -48,13 +46,12 @@ class EthereumProvider implements IBlockchainProvider {
     } = {}
   ): Promise<any> {
     try {
-      // Make a request to the Ethereum node to get the transaction trace
       const opts = {
         tracer: "callTracer",
         ...options,
       };
 
-      const trace = await this.provider.send("debug_traceTransaction", [
+      const trace = await this.prov.send("debug_traceTransaction", [
         txHash,
         opts,
       ]);
@@ -66,11 +63,10 @@ class EthereumProvider implements IBlockchainProvider {
   }
 
   on(event: ProviderEvent, listener: (data: any) => void): void {
-    this.provider.on(event, listener);
+    this.prov.on(event, listener);
   }
 }
 
-// Extend the generic BlockchainGateway to create an Ethereum-specific gateway
 export class EthereumGateway
   extends BlockchainGateway
   implements IBlockchainGateway
@@ -79,7 +75,7 @@ export class EthereumGateway
   constructor(config: EthereumGatewayConfig) {
     const ethereumProvider = new EthereumProvider(config);
     super({
-      provider: ethereumProvider,
+      prov: ethereumProvider,
       blockchain: "ethereum",
       network: config.metadata.network,
       token: "ETH",

@@ -11,12 +11,12 @@
     "emitDecoratorMetadata": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./src", // Set the baseUrl to the src directory
+    "baseUrl": "./src",
     "paths": {
-      "utils/*": ["utils/*"], // Map utils to the utils directory
-      "core/*": ["core/*"], // Map core to the core directory
-      "adapters/*": ["adapters/*"], // Map core to the core directory
-      "database/*": ["database/*"] // Map database to the core directory
+      "utils/*": ["utils/*"],
+      "core/*": ["core/*"],
+      "adapters/*": ["adapters/*"],
+      "database/*": ["database/*"]
     }
   },
   "include": ["src/**/*"],

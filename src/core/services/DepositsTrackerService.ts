@@ -7,10 +7,6 @@ import {
 import { IDepositsRepository } from "core/types.repositories";
 import { DepositsTrackerService as IDepositsTrackerService } from "core/types.services";
 
-// TODO - would be nice to store which was the last block processed
-
-// NOTE - error handling for fetches to data gateways is missing and it's relative to business logics needs
-
 export class DepositsTrackerService implements IDepositsTrackerService {
   private blockchainGateway: IBlockchainGateway;
   private notificatorGateway: INotifierGateway | undefined;
@@ -33,13 +29,10 @@ export class DepositsTrackerService implements IDepositsTrackerService {
         `Filtering deposits for addresses: ${this.filterIn.join(", ")}`
       );
 
-    // Send a notification
     this.notificatorGateway?.sendNotification(
       `Deposits tracker service started`
     );
   }
-
-  // Process the last block's transactions in batches
   public async processBlockTransactions(
     blockNumberOrHash: string | number = "latest"
   ): Promise<void> {
@@ -62,7 +55,6 @@ export class DepositsTrackerService implements IDepositsTrackerService {
         }
       }
     } catch (error: any) {
-      //
     }
   }
 
@@ -87,21 +79,14 @@ export class DepositsTrackerService implements IDepositsTrackerService {
       `Finished processing blocks from ${lastStoredBlockNumber} to ${latestBlock}`
     );
   }
-
-  // Listen to pending transactions in real-time
   public startPendingTransactionsListener(): void {
     this.blockchainGateway.watchPendingTransactions((tx: TransactionData) => {
-      // Check if tx corresponds to the public key
       this.processTransaction(tx);
     });
   }
-
-  // Listen to new minted blocks in real-time
   public startMintedBlocksListener(): void {
     this.blockchainGateway.watchMintedBlocks((blockNumber: number) => {
       this.processBlockTransactions(blockNumber);
-      // Check if tx corresponds to the public key
-      // this.processTransactions(tx);
     });
   }
 
@@ -110,9 +95,6 @@ export class DepositsTrackerService implements IDepositsTrackerService {
       if (!this.filterIn.includes(txData.to)) return;
 
       console.info("Found deposit transaction:", txData.hash);
-
-      // Calculate the transaction fee as the product of gas limit and gas price
-      // TODO - Check this is acurate
       const fee = txData.gasLimit * txData.gasPrice;
 
       const deposit: Deposit = {
@@ -127,11 +109,7 @@ export class DepositsTrackerService implements IDepositsTrackerService {
       };
 
       DepositSchema.parse(deposit);
-
-      // Save the deposit to the storage repository
       await this.depositsRepository.storeDeposit(deposit);
-
-      // Send a notification
       await this.notificatorGateway?.sendNotification(
         `Deposit processed: ${txData.hash}\n\nAmount: ${txData.value}\nFee: ${fee}\nFrom: ${txData.from}\nTo: ${txData.to}\nBlock: ${txData.blockNumber}`
       );

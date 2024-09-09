@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 const createConnection = async (
   url: string,
   mongooseConnectConfig?: mongoose.ConnectOptions

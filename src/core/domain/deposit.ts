@@ -1,6 +1,4 @@
 import { z } from "zod";
-
-// Define the Zod schema
 export const DepositSchema = z.object({
   blockNumber: z.number(),
   blockTimestamp: z.number(),
@@ -11,6 +9,4 @@ export const DepositSchema = z.object({
   network: z.string(),
   token: z.string(),
 });
-
-// Infer the TypeScript interface from the Zod schema
 export type Deposit = z.infer<typeof DepositSchema>;

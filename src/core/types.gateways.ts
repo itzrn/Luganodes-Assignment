@@ -16,7 +16,6 @@ export interface TransactionData {
   value: bigint;
 }
 
-// Interface for the generic blockchain provider
 export interface IBlockchainProvider {
   getTransaction(txHash: string): Promise<any>;
   getBlock(blockNumberOrHash: string | number): Promise<any>;
@@ -25,7 +24,6 @@ export interface IBlockchainProvider {
   getBlockNumber(): Promise<number>;
 }
 
-// Interface for the generic blockchain gateway
 export class IBlockchainGateway {
   public blockchain: string = "";
   public network: string = "";
@@ -55,8 +53,6 @@ export class IBlockchainGateway {
     throw new Error("Not implemented");
   }
 }
-
-// Interface for the notifications gateway
 export interface INotifierGateway {
   sendNotification(message: string): Promise<void>;
 }
